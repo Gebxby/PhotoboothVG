@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/main.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class=" flex flex-col justify-center items-center min-h-screen relative overflow-x-hidden bg-cover bg-fixed bg-center">
+    <!-- Header Image -->
+    <!-- <img src="<%= image %>" alt="Welcome Header" class="w-[1000px] object-cover mt-10 animate-pumping"> -->
+
+
+
+    <section class="container mx-auto px-4 max-w-4xl">
+        <!-- Div WELCOME! dengan kontrol ukuran -->
+        <div class="welcome-container scale-75 md:scale-90 lg:scale-100 origin-center transition-all duration-300">
+            <div class="flex justify-center space-x-1 mt-6">
+                <!-- Elemen gambar mengikuti ukuran parent -->
+                <img src="/image/W.png" alt="W" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/E.png" alt="E" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/L.png" alt="L" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/C.png" alt="C" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/O.png" alt="O" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/M.png" alt="M" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/E.png" alt="E" class="h-28 w-auto m-1 animate-[pumping-none]">
+                <img src="/image/TandaSeru.png" alt="!" class="h-28 w-auto m-1 animate-pumping [animation-delay:3s]">
+            </div>
+        </div>
+    
+        <div class="flex justify-center items-center space-x-4 mt-6">
+            <!-- <img src="/image/Valeria.png" alt="my love" class="w-auto h-10 animate-pumping [animation-delay:4s]"> -->
+             <p class="text-4xl text-white animate-pumping [animation-delay:4s]"><b>V A L E R I A</b></p>
+            <img src="/image/Heart.png" alt="love" class="w-auto h-8 animate-heartbeat [animation-delay:4s]">
+        </div>
+    </section>
+    
+    <style>
+        /* Optional: Custom class untuk kontrol lebih spesifik */
+        .welcome-container {
+            /* Nilai default bisa diatur disini */
+            transform: scale(0.8);
+        }
+        
+        /* Jika ingin menggunakan CSS native */
+        @media (min-width: 768px) {
+            .welcome-container {
+                transform: scale(0.9);
+            }
+        }
+        @media (min-width: 1024px) {
+            .welcome-container {
+                transform: scale(1);
+            }
+        }
+    </style>
+
+    <section class="flex justify-center items-center min-h-[70vh] w-full relative py-10">
+        <!-- Flowers Left -->
+        <img src="<%= image_flowers1 %>" alt="Flowers Left"
+            class="w-[400px] h-auto absolute left-[calc(50%-650px)] top-1/2 -translate-y-1/2 z-0">
+
+        <!-- Flowers Right -->
+        <img src="<%= image_flowers2 %>" alt="Flowers Right"
+            class="w-[400px] h-auto absolute right-[calc(50%-650px)] top-1/2 -translate-y-1/2 z-0">
+
+
+        <!-- Main Menu Container -->
+        <div class="w-[800px] relative z-10">
+            <!-- Main Menu Image -->
+            <img src="<%= image_menuWEB %>" alt="Web Menu" class="w-full h-auto">
+
+            <!-- Animated "Start" Text -->
+            <div class="absolute bottom-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[120%] w-full text-center">
+                <p class="text-pink-500 font-bold text-3xl md:text-4xl tracking-wide border-white">
+                    <span
+                        class="typing-animation inline-block overflow-hidden whitespace-nowrap border-r-4 border-white pr-1 animate-typing ">
+                        Start to take your pict here!
+                    </span>
+                </p>
+            </div>
+
+            <!-- Center Button -->
+            <a href="/photo" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 mt-16 ">
+                <img src="<%= image_button %>" alt="Button"
+                    class="w-40 md:w-60 hover:scale-105 transition-transform duration-200 animate-pumping [animation-delay:4s]">
+            </a>
+
+        </div>
+        <script>
+            // Konfigurasi Tailwind
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        animation: {
+                            typing: 'typing 3.5s steps(40, end), blink-caret .75s step-end infinite',
+                            pumping: 'pumping 1s ease-in-out infinite ', 'pumping-none': 'none',
+                            heartbeat: 'heartbeat 1.5s ease-in-out infinite',
+                        },
+                        keyframes: {
+                            typing: {
+                                from: { width: '0' },
+                                to: { width: '100%' },
+                            },
+                            'blink-caret': {
+                                '0%, 100%': { 'border-color': 'transparent' },
+                                '50%': { 'border-color': 'white' },
+                            },
+                            pumping: {
+                                '0%, 100%': { transform: 'scale(1)' },
+                                '50%': { transform: 'scale(1.1)' },
+                            },
+                            heartbeat: {
+                                '0%': { transform: 'scale(1)' },
+                                '15%': { transform: 'scale(1.3)' },
+                                '30%': { transform: 'scale(1)' },
+                                '45%': { transform: 'scale(1.25)' },
+                                '60%': { transform: 'scale(1)' },
+                                '100%': { transform: 'scale(1)' }
+                            }
+                        },
+                    },
+                },
+            }
+        </script>
+    </section>
+    <%- include('footer') %>
+</body>
+<!-- <body>
+    <div><img src="<%= background %>" alt=""></div>
+</body> -->
+
+</html>

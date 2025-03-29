@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'PixelifySans';
+    src: url('/fonts/static/PixelifySans-Regular.ttf') format('truetype'),
+         url('/fonts/static/PixelifySans-Bold.ttf') format('truetype'),
+         url('/fonts/static/PixelifySans-Medium.ttf') format('truetype'),
+         url('/fonts/static/PixelifySans-SemiBold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'PixelifySans', sans-serif;
+    /* background-color: #ffeff9; */
+
+    background-image:linear-gradient(rgba(250, 180, 180, 0.363) , rgba(0, 0, 0, 0.185)) , url("/image/BG-2.png");
+    background: cover ;
+    /* bg-[url('static/image/gallary/110.jpg')] bg-cover bg-fixed bg-center  */
+   
+}
+
+/* .menu-container{
+    position: relative;
+    width: fit-content;
+    display: inline-block;
+}
+
+.button{
+    position: absolute;
+    width: 30%;
+}
+
+.menu-image{
+    position: flex;
+    display: block;
+
+} */
