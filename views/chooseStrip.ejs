@@ -1,0 +1,27 @@
+<!-- chooseStrip.ejs -->
+<link rel="stylesheet" href="/main.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex flex-col items-center p-6">
+    <h1 class="text-2xl font-bold mb-4">Pilih Desain Strip Photobooth</h1>
+    <div class="grid grid-cols-3 gap-6">
+        <% strips.forEach((strip, index) => { %>
+            <div class="border rounded-lg overflow-hidden shadow-md">
+                <img src="<%= strip %>" alt="Strip <%= index + 1 %>" class="w-64 h-96 object-cover">
+                <button class="bg-blue-500 text-white p-2 w-full" onclick="chooseStrip('<%= strip %>')">Pilih</button>
+            </div>
+        <% }) %>
+    </div>
+    <button id="nextPage" class="mt-6 bg-green-500 text-white px-6 py-2 rounded-lg hidden">Berikutnya</button>
+</div>
+
+<script>
+    function chooseStrip(strip) {
+        localStorage.setItem("selectedStrip", strip);
+        document.getElementById("nextPage").classList.remove("hidden");
+    }
+
+    document.getElementById("nextPage").addEventListener("click", () => {
+        window.location.href = "/photo";
+    });
+</script>

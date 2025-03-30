@@ -1,9 +1,9 @@
 @font-face {
     font-family: 'PixelifySans';
     src: url('/fonts/static/PixelifySans-Regular.ttf') format('truetype'),
-         url('/fonts/static/PixelifySans-Bold.ttf') format('truetype'),
-         url('/fonts/static/PixelifySans-Medium.ttf') format('truetype'),
-         url('/fonts/static/PixelifySans-SemiBold.ttf') format('truetype');
+        url('/fonts/static/PixelifySans-Bold.ttf') format('truetype'),
+        url('/fonts/static/PixelifySans-Medium.ttf') format('truetype'),
+        url('/fonts/static/PixelifySans-SemiBold.ttf') format('truetype');
     font-weight: normal;
     font-style: normal;
 }
@@ -12,10 +12,55 @@ body {
     font-family: 'PixelifySans', sans-serif;
     /* background-color: #ffeff9; */
 
-    background-image:linear-gradient(rgba(250, 180, 180, 0.363) , rgba(0, 0, 0, 0.185)) , url("/image/BG-2.png");
-    background: cover ;
+    background-image: linear-gradient(rgba(250, 180, 180, 0.363), rgba(0, 0, 0, 0.185)), url("/image/BG-2.png");
+    background: cover;
     /* bg-[url('static/image/gallary/110.jpg')] bg-cover bg-fixed bg-center  */
-   
+
+}
+
+video,
+canvas {
+    max-width: 100%;
+    border: 1px solid black;
+    margin-bottom: 10px;
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+#photoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.photo-item {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.photo-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 3px;
+    font-size: 12px;
+    cursor: pointer;
 }
 
 /* .menu-container{

@@ -1,0 +1,173 @@
+<link rel="stylesheet" href="/main.css">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    body {
+
+        text-align: center;
+    }
+
+    video,
+    canvas {
+        width: 1000px;
+        border: 1px solid black;
+        margin-bottom: 10px;
+    }
+
+    button {
+        padding: 10px;
+        margin: 5px;
+        cursor: pointer;
+    }
+
+    #photoGrid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .photo-item {
+        position: relative;
+        width: 100px;
+        height: 100px;
+    }
+
+    .photo-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: red;
+        color: white;
+        border: none;
+        padding: 3px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+</style>
+<div>
+    <h1><strong>
+            <%= message %>
+        </strong></h1>
+    <h3>GET READY WITH YOUR SPECIAL POSE!!!</h3>
+    <img src="<%= awan %>" alt="awan">
+</div>
+<!-- Video Kamera -->
+<section class="flex justify-center items-center min-h-[70vh] w-full relative">
+    <div class="relative w-[1000px] h-[750px] flex justify-center items-center">
+
+        <!-- Video Container -->
+        <div class="relative w-[850px] h-[650px]">
+            <video id="video" autoplay class="w-full h-full object-cover"></video>
+        </div>
+
+        <!-- Bingkai Container -->
+        <div class="absolute w-[1010px] h-[850px] flex justify-center items-center top-0 mt-2  pointer-events-none">
+            <img src="<%= bingkai %>" alt="Bingkai" class="w-[2000px] h-auto object-fill">
+        </div>
+    </div>
+</section>
+<div class="mb-10 ">
+
+    <button id="capture" class="z-10"><img src="<%= shoot %>" alt="button" class="w-20"></button>
+
+</div>
+
+
+
+<!-- Grid Foto -->
+<div id="photoGrid"></div>
+
+<br>
+<button id="downloadAll" disabled><img src="<%= download %>" alt="button" class="w-20"></button>
+<br><br>
+<script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture');
+    const photoGrid = document.getElementById('photoGrid');
+    const downloadAllButton = document.getElementById('downloadAll');
+    const photos = [];
+
+    // **Mengakses Kamera**
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+            video.srcObject = stream;
+        })
+        .catch(error => {
+            console.error("Error mengakses kamera:", error);
+        });
+
+    // **Ambil Foto & Simpan dalam Grid**
+    captureButton.addEventListener('click', () => {
+        if (photos.length >= 6) {
+            alert("Maksimal 6 foto tersimpan!");
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageUrl = canvas.toDataURL('image/png');
+        photos.push(imageUrl);
+        updatePhotoGrid();
+    });
+
+    // **Update Tampilan Grid Foto**
+    function updatePhotoGrid() {
+        photoGrid.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const photoItem = document.createElement('div');
+            photoItem.classList.add('photo-item');
+
+            const img = document.createElement('img');
+            img.src = photo;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.innerText = "X";
+            removeBtn.classList.add('remove-btn');
+            removeBtn.onclick = () => {
+                photos.splice(index, 1);
+                updatePhotoGrid();
+            };
+
+            photoItem.appendChild(img);
+            photoItem.appendChild(removeBtn);
+            photoGrid.appendChild(photoItem);
+        });
+
+        // **Aktifkan tombol download jika minimal 3 foto tersimpan**
+        downloadAllButton.disabled = photos.length < 3;
+    }
+
+    // **Download Semua Foto sebagai ZIP**
+    downloadAllButton.addEventListener('click', async () => {
+        if (photos.length < 3) {
+            alert("Harus menyimpan minimal 3 foto sebelum mengunduh!");
+            return;
+        }
+
+        const zip = new JSZip();
+        photos.forEach((photo, index) => {
+            zip.file(photo${ index + 1}.png, photo.split(',')[1], { base64: true });
+    });
+
+    const content = await zip.generateAsync({ type: "blob" });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(content);
+    link.download = "photos.zip";
+    link.click();
+    });
+</script>
+
+<!-- Library JSZip untuk Membuat ZIP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
