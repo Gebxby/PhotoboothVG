@@ -171,3 +171,138 @@
 
 <!-- Library JSZip untuk Membuat ZIP -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+
+
+<link rel="stylesheet" href="/main.css">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="/main.js"></script>
+
+<div class="flex flex-col items-center">
+    <h1><strong>
+            <%= message %>
+        </strong></h1>
+    <h3>GET READY WITH YOUR SPECIAL POSE!!!</h3>
+    <img src="<%= awan %>" alt="awan">
+</div>
+<style>
+    body {
+        text-align: center;
+    }
+
+    video,
+    canvas {
+        width: 1000px;
+        border: 1px solid black;
+        margin-bottom: 10px;
+    }
+</style>
+
+<!-- Video Kamera -->
+<section class="flex justify-center items-center min-h-[70vh] w-full relative">
+    <div class="relative w-[1000px] h-[750px] flex justify-center items-center">
+        <div class="relative w-[850px] h-[650px]">
+            <video id="video" autoplay class="w-full h-full object-cover"></video>
+        </div>
+        <div class="absolute w-[1010px] h-[850px] flex justify-center items-center top-0 mt-2 pointer-events-none">
+            <img src="<%= bingkai %>" alt="Bingkai" class="w-[2000px] h-auto object-fill">
+        </div>
+    </div>
+</section>
+<div class="mb-10">
+    <button id="capture" class="z-10"><img src="<%= shoot %>" alt="button" class="w-20"></button>
+</div>
+<div id="photoGrid"></div>
+<br>
+<button id="downloadAll" disabled><img src="<%= download %>" alt="button" class="w-20"></button>
+<br><br>
+<script>
+    const video = document.getElementById('video');
+    const captureButton = document.getElementById('capture');
+    const photoGrid = document.getElementById('photoGrid');
+    const downloadButton = document.getElementById('downloadAll');
+    const stripTemplate = "<%= strip %>";
+    const photos = [];
+    const positions = [
+        { x: 50, y: 50 }, { x: 300, y: 50 },
+        { x: 50, y: 250 }, { x: 300, y: 250 },
+        { x: 50, y: 450 }, { x: 300, y: 450 }
+    ];
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => { video.srcObject = stream; })
+        .catch(error => { console.error("Error mengakses kamera:", error); });
+
+    captureButton.addEventListener('click', () => {
+        if (photos.length >= 6) {
+            alert("Maksimal 6 foto tersimpan!");
+            return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        photos.push(canvas.toDataURL('image/png'));
+        updatePhotoGrid();
+    });
+
+    function updatePhotoGrid() {
+        photoGrid.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const photoItem = document.createElement('div');
+            photoItem.classList.add('absolute');
+            photoItem.style.left = positions[index].x + 'px';
+            photoItem.style.top = positions[index].y + 'px';
+            photoItem.style.width = '150px';
+            photoItem.style.height = '200px';
+            photoItem.style.zIndex = '-1';
+            const img = document.createElement('img');
+            img.src = photo;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '5px';
+            photoItem.appendChild(img);
+            photoGrid.appendChild(photoItem);
+        });
+        downloadButton.disabled = photos.length < 6;
+    }
+
+    downloadButton.addEventListener('click', async () => {
+        if (photos.length < 6) {
+            alert("Harus menyimpan minimal 6 foto sebelum mengunduh!");
+            return;
+        }
+
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const stripImage = new Image();
+        stripImage.src = stripTemplate;
+
+        stripImage.onload = async () => {
+            canvas.width = stripImage.width;
+            canvas.height = stripImage.height;
+            ctx.drawImage(stripImage, 0, 0, canvas.width, canvas.height);
+
+            // Load semua foto sebelum menggambar di canvas
+            await Promise.all(
+                photos.map((photo, index) => new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = photo;
+                    img.onload = () => {
+                        ctx.drawImage(img, positions[index].x, positions[index].y, 150, 200);
+                        resolve();
+                    };
+                }))
+            );
+
+            // Setelah semua foto digambar, buat file download
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'strip_photobooth.png';
+            link.click();
+        };
+    });
+
+</script>

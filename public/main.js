@@ -87,3 +87,43 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     });
 });
+const positions = [
+    { x: 50, y: 50 }, { x: 300, y: 50 },
+    { x: 50, y: 250 }, { x: 300, y: 250 },
+    { x: 50, y: 450 }, { x: 300, y: 450 }
+];
+function updatePhotoGrid() {
+    photoGrid.innerHTML = '';
+    photos.forEach((photo, index) => {
+        const photoItem = document.createElement('div');
+        photoItem.classList.add('photo-item');
+        photoItem.style.left = positions[index].x + 'px';
+        photoItem.style.top = positions[index].y + 'px';
+        const img = document.createElement('img');
+        img.src = photo;
+        photoItem.appendChild(img);
+        photoGrid.appendChild(photoItem);
+    });
+    downloadButton.disabled = photos.length < 6;
+}
+const stripImage = new Image();
+stripImage.src = stripTemplate;
+stripImage.onload = () => {
+    canvas.width = stripImage.width;
+    canvas.height = stripImage.height;
+    ctx.drawImage(stripImage, 0, 0, canvas.width, canvas.height); // Strip sebagai overlay
+
+    photos.forEach((photo, index) => {
+        const img = new Image();
+        img.src = photo;
+        img.onload = () => {
+            ctx.drawImage(img, positions[index].x, positions[index].y, 150, 200);
+            if (index === photos.length - 1) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'strip_photobooth.png';
+                link.click();
+            }
+        };
+    });
+};

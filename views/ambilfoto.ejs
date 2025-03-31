@@ -3,99 +3,48 @@
 <script src="/main.js"></script>
 
 <div class="flex flex-col items-center">
-    <h1><strong>
-            <%= message %>
-        </strong></h1>
+    <h1><strong><%= message %></strong></h1>
     <h3>GET READY WITH YOUR SPECIAL POSE!!!</h3>
     <img src="<%= awan %>" alt="awan">
 </div>
-<style>
-    body {
-        text-align: center;
-    }
-
-    video,
-    canvas {
-        width: 1000px;
-        border: 1px solid black;
-        margin-bottom: 10px;
-    }
-
-    button {
-        padding: 10px;
-        margin: 5px;
-        cursor: pointer;
-    }
-
-    #photoGrid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-
-    .photo-item {
-        position: relative;
-        width: 100px;
-        height: 100px;
-    }
-
-    .photo-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 5px;
-    }
-
-    .remove-btn {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: red;
-        color: white;
-        border: none;
-        padding: 3px;
-        font-size: 12px;
-        cursor: pointer;
-    }
-</style>
 
 <!-- Video Kamera -->
 <section class="flex justify-center items-center min-h-[70vh] w-full relative">
     <div class="relative w-[1000px] h-[750px] flex justify-center items-center">
-
-        <!-- Video Container -->
         <div class="relative w-[850px] h-[650px]">
             <video id="video" autoplay class="w-full h-full object-cover"></video>
         </div>
 
         <!-- Bingkai Container -->
-        <div class="absolute w-[1010px] h-[850px] flex justify-center items-center top-0 mt-2  pointer-events-none">
+        <div class="absolute w-[1010px] h-[850px] flex justify-center items-center top-0 mt-2 pointer-events-none">
             <img src="<%= bingkai %>" alt="Bingkai" class="w-[2000px] h-auto object-fill">
         </div>
     </div>
 </section>
-<div class="mb-10 ">
 
-    <button id="capture" class="z-10"><img src="<%= shoot %>" alt="button" class="w-20"></button>
-
+<div class="mb-10">
+    <button id="capture"><img src="<%= shoot %>" alt="button" class="w-20"></button>
 </div>
-
-
 
 <!-- Grid Foto -->
 <div id="photoGrid"></div>
 
 <br>
-<button id="downloadAll" disabled><img src="<%= download %>" alt="button" class="w-20"></button>
-<br><br>
+<button id="downloadStrip" disabled><img src="<%= download %>" alt="button" class="w-20"></button>
+
 <script>
     const video = document.getElementById('video');
     const captureButton = document.getElementById('capture');
     const photoGrid = document.getElementById('photoGrid');
     const downloadButton = document.getElementById('downloadStrip');
-    const stripTemplate = "<%= strip %>";
     const photos = [];
+    
+    // Ambil strip photobooth dari localStorage
+    const selectedStrip = localStorage.getItem("selectedStrip");
+    if (!selectedStrip) {
+        alert("Silakan pilih strip terlebih dahulu!");
+        window.location.href = "/chooseStrip";
+    }
 
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then(stream => { video.srcObject = stream; })
@@ -103,7 +52,7 @@
 
     captureButton.addEventListener('click', () => {
         if (photos.length >= 6) {
-            alert("Maksimal 6 foto tersimpan!");
+            alert("Maksimal 6 foto!");
             return;
         }
         const canvas = document.createElement('canvas');
@@ -111,7 +60,9 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        photos.push(canvas.toDataURL('image/png'));
+        
+        const imageUrl = canvas.toDataURL('image/png');
+        photos.push(imageUrl);
         updatePhotoGrid();
     });
 
@@ -122,49 +73,48 @@
             photoItem.classList.add('photo-item');
             const img = document.createElement('img');
             img.src = photo;
-            const removeBtn = document.createElement('button');
-            removeBtn.innerText = "X";
-            removeBtn.classList.add('remove-btn');
-            removeBtn.onclick = () => { photos.splice(index, 1); updatePhotoGrid(); };
             photoItem.appendChild(img);
-            photoItem.appendChild(removeBtn);
             photoGrid.appendChild(photoItem);
         });
-        downloadButton.disabled = photos.length < 6;
+        downloadButton.disabled = photos.length < 3;
     }
-    document.addEventListener("DOMContentLoaded", () => {
-        const selectedStrip = localStorage.getItem("selectedStrip");
 
-        if (!selectedStrip) {
-            alert("Silakan pilih strip terlebih dahulu!");
-            window.location.href = "/chooseStrip";
-        } else {
-            document.getElementById("selectedStrip").src = selectedStrip;
-        }
-    });
-
+    // Fix untuk download strip photobooth dengan foto yang sudah ditempel dalam dua kolom
     downloadButton.addEventListener('click', async () => {
-        if (photos.length < 3) {
-            alert("Harus menyimpan minimal 3 foto sebelum mengunduh!");
+        if (photos.length < 6) {
+            alert("Harus ada 6 foto untuk mengunduh!");
             return;
         }
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const stripImage = new Image();
-        stripImage.src = stripTemplate;
-        stripImage.onload = () => {
-            canvas.width = stripImage.width;
-            canvas.height = stripImage.height;
-            ctx.drawImage(stripImage, 0, 0, canvas.width, canvas.height);
-            photos.forEach((photo, index) => {
+
+        const stripCanvas = document.createElement('canvas');
+        const ctx = stripCanvas.getContext('2d');
+        const stripImg = new Image();
+        stripImg.src = selectedStrip;
+
+        stripImg.onload = function () {
+            stripCanvas.width = stripImg.width;
+            stripCanvas.height = stripImg.height;
+            ctx.drawImage(stripImg, 0, 0, stripCanvas.width, stripCanvas.height);
+
+            // **Koordinat foto dalam dua kolom (3 kiri, 3 kanan)**
+            const photoWidth = 1010; 
+            const photoHeight = 850;
+            const leftX = stripCanvas.width / 2; // Posisi kolom kiri
+            const rightX = stripCanvas.width / 8; // Posisi kolom kanan
+            const startY = stripCanvas.height / 18; // Jarak dari atas
+
+            photos.forEach((photo, i) => {
                 const img = new Image();
                 img.src = photo;
-                img.onload = () => {
-                    ctx.drawImage(img, 50, 100 + index * 200, 200, 150);
-                    if (index === photos.length - 1) {
+                img.onload = function () {
+                    const x = i % 2 === 0 ? leftX : rightX;
+                    const y = startY + Math.floor(i / 2) * (photoHeight + 20);
+                    ctx.drawImage(img, x, y, photoWidth, photoHeight);
+
+                    if (i === photos.length - 1) {
                         const link = document.createElement('a');
-                        link.href = canvas.toDataURL('image/png');
-                        link.download = 'strip_photobooth.png';
+                        link.href = stripCanvas.toDataURL('image/png');
+                        link.download = "strip_photobooth.png";
                         link.click();
                     }
                 };
