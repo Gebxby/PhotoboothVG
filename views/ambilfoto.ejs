@@ -1,9 +1,13 @@
 <link rel="stylesheet" href="/main.css">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="/main.js"></script>
+<style>
 
+</style>
 <div class="flex flex-col items-center">
-    <h1><strong><%= message %></strong></h1>
+    <h1><strong>
+            <%= message %>
+        </strong></h1>
     <h3>GET READY WITH YOUR SPECIAL POSE!!!</h3>
     <img src="<%= awan %>" alt="awan">
 </div>
@@ -38,7 +42,7 @@
     const photoGrid = document.getElementById('photoGrid');
     const downloadButton = document.getElementById('downloadStrip');
     const photos = [];
-    
+
     // Ambil strip photobooth dari localStorage
     const selectedStrip = localStorage.getItem("selectedStrip");
     if (!selectedStrip) {
@@ -60,7 +64,7 @@
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
         const imageUrl = canvas.toDataURL('image/png');
         photos.push(imageUrl);
         updatePhotoGrid();
@@ -88,37 +92,56 @@
 
         const stripCanvas = document.createElement('canvas');
         const ctx = stripCanvas.getContext('2d');
+
         const stripImg = new Image();
         stripImg.src = selectedStrip;
 
         stripImg.onload = function () {
             stripCanvas.width = stripImg.width;
             stripCanvas.height = stripImg.height;
+
+            // 1. **Gambar background strip terlebih dahulu**
             ctx.drawImage(stripImg, 0, 0, stripCanvas.width, stripCanvas.height);
 
-            // **Koordinat foto dalam dua kolom (3 kiri, 3 kanan)**
-            const photoWidth = 1010; 
+            // **Koordinat untuk foto**
+            const photoWidth = 1010;
             const photoHeight = 850;
             const leftX = stripCanvas.width / 2; // Posisi kolom kiri
             const rightX = stripCanvas.width / 8; // Posisi kolom kanan
             const startY = stripCanvas.height / 18; // Jarak dari atas
 
+            let loadedImages = 0;
+
             photos.forEach((photo, i) => {
                 const img = new Image();
                 img.src = photo;
+
                 img.onload = function () {
                     const x = i % 2 === 0 ? leftX : rightX;
                     const y = startY + Math.floor(i / 2) * (photoHeight + 20);
                     ctx.drawImage(img, x, y, photoWidth, photoHeight);
 
-                    if (i === photos.length - 1) {
-                        const link = document.createElement('a');
-                        link.href = stripCanvas.toDataURL('image/png');
-                        link.download = "strip_photobooth.png";
-                        link.click();
+                    loadedImages++;
+
+                    // 3. **Setelah semua foto tertempel, gambar overlay strip terakhir**
+                    if (loadedImages === photos.length) {
+                        const overlayStrip = new Image();
+                        overlayStrip.src = selectedStrip;
+
+                        overlayStrip.onload = function () {
+                            ctx.drawImage(overlayStrip, 0, 0, stripCanvas.width, stripCanvas.height);
+
+                            // **Download hasil gambar**
+                            const link = document.createElement('a');
+                            link.href = stripCanvas.toDataURL('image/png');
+                            link.download = "strip_photobooth.png";
+                            link.click();
+                        };
                     }
                 };
             });
         };
     });
+
+
 </script>
